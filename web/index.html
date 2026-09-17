@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#030807">
+<title>SF-Panel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2300ff9d'/%3E%3Ctext x='32' y='43' font-size='24' font-family='monospace' font-weight='bold' fill='%2304231a' text-anchor='middle'%3ESF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+
+<!-- ═══════════════════ Auth / Setup ═══════════════════ -->
+<div id="authWrap" class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="mark">SF</div>
+      <div>
+        <h1>SF-Panel</h1>
+        <small id="authBrandSub" data-i18n="auth.checking">Checking status…</small>
+      </div>
+      <button class="btn btn-sm" id="langBtnAuth" style="margin-inline-start:auto">فارسی</button>
+    </div>
+
+    <!-- Login -->
+    <div id="loginForm" class="hidden">
+      <div class="f">
+        <label data-i18n="auth.username">Username</label>
+        <input id="authUser" autocomplete="username" spellcheck="false">
+      </div>
+      <div class="f">
+        <label data-i18n="auth.password">Password</label>
+        <input id="authPass" type="password" autocomplete="current-password">
+      </div>
+      <div class="f hidden" id="totpField">
+        <label data-i18n="auth.2faCode">2FA code</label>
+        <input id="authCode" class="ltr" inputmode="numeric" maxlength="6"
+               placeholder="------" autocomplete="one-time-code">
+        <div class="hint" data-i18n="auth.2faHint">Enter the 6-digit code.</div>
+      </div>
+      <div class="err" id="authErr"></div>
+      <button class="btn btn-pri btn-block" id="authBtn" data-i18n="auth.btnLogin">Sign in</button>
+    </div>
+
+    <!-- Setup -->
+    <div id="setupForm" class="hidden">
+      <div class="f">
+        <label data-i18n="auth.username">Username</label>
+        <input id="setupUser" autocomplete="username" spellcheck="false">
+      </div>
+      <div class="f">
+        <label data-i18n="auth.password">Password</label>
+        <input id="setupPass" type="password" autocomplete="new-password">
+      </div>
+      <div class="f">
+        <label data-i18n="auth.password2">Repeat password</label>
+        <input id="setupPass2" type="password" autocomplete="new-password">
+      </div>
+      <div class="err" id="setupErr"></div>
+      <button class="btn btn-pri btn-block" id="setupBtn" data-i18n="auth.btnInstall">Install</button>
+    </div>
+
+    <div class="auth-foot">
+      <span id="authXrayState" class="pill"><span class="dot"></span> Xray</span>
+      <span class="ver">v<span id="authVer">—</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Main app ═══════════════════ -->
+<div id="appWrap" class="app hidden">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <div class="mark">SF</div>
+      <div><b>SF-Panel</b><div class="v">v<span id="verTag">—</span></div></div>
+    </div>
+    <nav id="nav">
+      <div class="nav-item active" data-view="dashboard"><span class="ic">📊</span> <span data-i18n="nav.dashboard">Dashboard</span></div>
+      <div class="nav-item" data-view="inbounds"><span class="ic">📡</span> <span data-i18n="nav.inbounds">Inbounds</span></div>
+      <div class="nav-item" data-view="clients"><span class="ic">👥</span> <span data-i18n="nav.clients">Clients</span></div>
+      <div class="nav-item" data-view="settings"><span class="ic">⚙️</span> <span data-i18n="nav.settings">Settings</span></div>
+      <div class="nav-item" data-view="xray"><span class="ic">🧠</span> <span data-i18n="nav.xray">Xray Core</span></div>
+      <div class="nav-item" data-view="logs"><span class="ic">📜</span> <span data-i18n="nav.logs">Logs</span></div>
+    </nav>
+    <div class="side-foot">
+      <span class="muted" data-i18n="app.tagline">Xray Panel</span>
+      <button class="btn-icon" id="logoutBtn" data-i18n-title="nav.logout" title="Log out">⏻</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="btn-icon only-mobile" id="mobileMenu" title="Menu">☰</button>
+      <div class="titles">
+        <h1 id="viewTitle">Dashboard</h1>
+        <div class="sub" id="viewSub"></div>
+      </div>
+      <div class="top-actions">
+        <div id="modePill" class="pill">—</div>
+        <div id="xrayPill" class="pill bad"><span class="dot"></span> Xray</div>
+        <button class="btn btn-sm" id="langBtn">فارسی</button>
+      </div>
+    </header>
+
+    <main id="view">
+
+      <!-- ── Dashboard ── -->
+      <section id="view-dashboard" class="view">
+        <div class="grid g4">
+          <div class="card stat">
+            <div class="lbl" data-i18n="dash.cpu">CPU</div>
+            <div class="val" id="stCpu">—</div>
+            <div class="prog"><i id="stCpuBar" style="width:0%"></i></div>
+          </div>
+          <div class="card stat">
+            <div class="lbl" data-i18n="dash.memory">Memory</div>
+            <div class="val" id="stMem">—</div>
+            <div class="prog"><i id="stMemBar" style="width:0%"></i></div>
+            <div class="sub" id="stMemSub">—</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl" data-i18n="dash.disk">Disk</div>
+            <div class="val" id="stDisk">—</div>
+            <div class="prog"><i id="stDiskBar" style="width:0%"></i></div>
+            <div class="sub" id="stDiskSub">—</div>
+          </div>
+          <div class="card stat">
+            <div class="lbl" data-i18n="dash.net">Network</div>
+            <div class="val" id="stNet">—</div>
+            <div class="sub" id="stNetSub">↑ — &nbsp; ↓ —</div>
+          </div>
+        </div>
+
+        <div class="grid g4 chips-row">
+          <div class="chip"><span data-i18n="dash.todayUsage">Usage today</span><b id="stToday">—</b></div>
+          <div class="chip"><span data-i18n="dash.totalUsage">Total traffic</span><b id="stTotal">—</b></div>
+          <div class="chip"><span data-i18n="dash.clients">Clients</span><b id="stClients">—</b></div>
+          <div class="chip"><span data-i18n="dash.conns">Live connections</span><b id="stConns">—</b></div>
+        </div>
+
+        <div class="g-main">
+          <div class="card">
+            <h3>📈 <span data-i18n="dash.trafficChart">Live traffic</span></h3>
+            <canvas id="chart" height="180"></canvas>
+            <div class="legend">
+              <span><i class="lg lg-up"></i> <span data-i18n="dash.upload">Upload</span></span>
+              <span><i class="lg lg-down"></i> <span data-i18n="dash.download">Download</span></span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>⚙️ <span data-i18n="dash.xrayCore">Xray core</span></h3>
+            <div id="xrayState" class="pill bad"><span class="dot"></span> …</div>
+            <div class="kv"><span data-i18n="dash.version">Version</span><b id="xrayVer">—</b></div>
+            <div class="kv"><span data-i18n="dash.uptime">Uptime</span><b id="xrayUptime">—</b></div>
+            <div class="kv"><span data-i18n="dash.restarts">Restarts</span><b id="xrayRestarts">—</b></div>
+            <button class="btn btn-pri btn-block" id="btnXrayRestart2" data-i18n="dash.btnRestart">🔄 Restart</button>
+          </div>
+        </div>
+
+        <div class="g-main" style="margin-top:16px">
+          <div class="card">
+            <h3>🏆 <span data-i18n="dash.topUsers">Top consumers</span></h3>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th data-i18n="dash.userCol">Client</th><th data-i18n="dash.usageCol">Usage</th><th data-i18n="dash.statusCol">Status</th></tr></thead>
+                <tbody id="topUsers"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3>🔔 <span data-i18n="dash.recentEvents">Recent events</span></h3>
+            <ul id="dashEvents" class="events"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Inbounds ── -->
+      <section id="view-inbounds" class="view hidden">
+        <div class="toolbar">
+          <button class="btn btn-pri" id="btnAddInbound" data-i18n="ib.new">＋ New</button>
+          <input id="inboundSearch" class="search" data-i18n-ph="common.search" placeholder="Search…">
+          <span class="muted" id="inboundsCount"></span>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th data-i18n="ib.colStatus">Status</th><th data-i18n="ib.colRemark">Name</th><th data-i18n="ib.colProtocol">Protocol</th>
+                    <th data-i18n="ib.colDetail">Connection</th><th data-i18n="ib.colClients">Clients</th><th data-i18n="ib.colTraffic">Traffic</th><th data-i18n="ib.colActions">Actions</th></tr>
+              </thead>
+              <tbody id="inboundsTbody"></tbody>
+            </table>
+          </div>
+          <div id="inboundsEmpty" class="empty hidden">
+            <div class="big">📡</div><b data-i18n="ib.emptyTitle">No inbounds</b>
+            <div class="hint" data-i18n="ib.emptyHint" style="margin-top:6px">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Clients ── -->
+      <section id="view-clients" class="view hidden">
+        <div class="toolbar">
+          <button class="btn btn-pri" id="btnAddClient" data-i18n="cl.new">＋ New</button>
+          <input id="clientSearch" class="search" data-i18n-ph="common.search" placeholder="Search…">
+          <span class="muted" id="clientsCount"></span>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th data-i18n="cl.colStatus">Status</th><th data-i18n="cl.colClient">Client</th><th data-i18n="cl.colInbounds">Inbounds</th>
+                    <th data-i18n="cl.colUsage">Usage</th><th data-i18n="cl.colLimit">Data limit</th><th data-i18n="cl.colExpiry">Expiry</th><th data-i18n="cl.colActions">Actions</th></tr>
+              </thead>
+              <tbody id="clientsTbody"></tbody>
+            </table>
+          </div>
+          <div id="clientsEmpty" class="empty hidden">
+            <div class="big">👥</div><b data-i18n="cl.emptyTitle">No clients</b>
+            <div class="hint" data-i18n="cl.emptyHint" style="margin-top:6px">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Settings ── -->
+      <section id="view-settings" class="view hidden">
+        <div class="grid g2">
+          <div class="card">
+            <h3 data-i18n="st.general">🌐 General</h3>
+            <div class="f">
+              <label data-i18n="st.domain">Public domain</label>
+              <input id="setDomain" class="ltr" placeholder="panel.example.com">
+              <div class="hint" data-i18n="st.domainHint">—</div>
+            </div>
+            <div class="f">
+              <label data-i18n="st.subTitle">Subscription title</label>
+              <input id="setSubTitle" placeholder="SF-Panel">
+            </div>
+            <button class="btn btn-pri" id="btnSaveGeneral" data-i18n="st.tgSave">💾 Save</button>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="st.security">🔑 Password</h3>
+            <div class="f"><label data-i18n="auth.currentPassword">Current</label>
+              <input id="passOld" type="password" autocomplete="current-password"></div>
+            <div class="f"><label data-i18n="auth.newPassword">New</label>
+              <input id="passNew" type="password" autocomplete="new-password"></div>
+            <button class="btn btn-pri" id="btnChangePass" data-i18n="st.changePass">Change</button>
+            <div class="hint" data-i18n="st.passHint">—</div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="st.2fa">🔐 Two-factor</h3>
+            <div id="totpStatus" class="pill"><span class="dot"></span> —</div>
+            <div class="row" style="margin:12px 0">
+              <button class="btn" id="btnTotpSetup" data-i18n="st.2faSetup">🔑 Setup</button>
+            </div>
+            <div id="totpSetupBox" class="hidden">
+              <div class="hint" data-i18n="st.2faSecret">—</div>
+              <div class="copybox mono" id="totpSecret">—</div>
+              <div id="totpQr" class="qr-slot"></div>
+              <div class="f">
+                <label data-i18n="st.2faEnter">Code</label>
+                <input id="totpCode" class="ltr" inputmode="numeric" maxlength="6">
+              </div>
+              <button class="btn btn-pri" id="btnTotpEnable" data-i18n="st.2faEnable">✅ Enable</button>
+            </div>
+            <div id="totpDisableBox" class="hidden" style="margin-top:12px">
+              <div class="f">
+                <label data-i18n="st.2faPass">Password</label>
+                <input id="totpDisablePass" type="password">
+              </div>
+              <button class="btn btn-bad" id="btnTotpDisable" data-i18n="st.2faDisable">Disable</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="st.tg">🤖 Telegram bot</h3>
+            <div class="f"><label data-i18n="st.tgToken">Bot token</label>
+              <input id="setTgToken" class="ltr" placeholder="123456:ABC-DEF..."></div>
+            <div class="f"><label data-i18n="st.tgAdmins">Admin IDs</label>
+              <input id="setTgAdmins" class="ltr" placeholder="123456789, 987654321">
+              <div class="hint" data-i18n="st.tgAdminsHint">—</div></div>
+            <div class="f sw-row">
+              <label class="sw"><input type="checkbox" id="setTgNotify"><span></span></label>
+              <span data-i18n="st.tgNotify">Notify</span>
+            </div>
+            <div class="row">
+              <button class="btn btn-pri" id="btnSaveTg" data-i18n="st.tgSave">💾 Save</button>
+              <button class="btn" id="btnTgTest" data-i18n="st.tgTest">🔌 Test</button>
+            </div>
+            <div class="hint" id="tgTestResult"></div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="st.reset">♻️ Periodic reset</h3>
+            <div class="f"><label data-i18n="st.resetMode">Mode</label>
+              <select id="setResetMode">
+                <option value="off" data-i18n="st.resetOff">Off</option>
+                <option value="daily" data-i18n="st.resetDaily">Daily</option>
+                <option value="monthly" data-i18n="st.resetMonthly">Monthly</option>
+              </select></div>
+            <div class="f"><label data-i18n="st.resetDay">Reset day</label>
+              <input id="setResetDay" type="number" min="1" max="28" value="1"></div>
+            <button class="btn btn-pri" id="btnSaveReset" data-i18n="st.tgSave">💾 Save</button>
+            <div class="hint" data-i18n="st.resetHint">—</div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="st.backup">📦 Backup</h3>
+            <button class="btn btn-pri" id="btnBackup" data-i18n="st.backupDl">⬇️ Download</button>
+            <div class="f" style="margin-top:14px">
+              <label data-i18n="st.restore">Restore</label>
+              <input id="restoreFile" type="file" accept=".json,application/json">
+            </div>
+            <button class="btn btn-bad" id="btnRestore" data-i18n="st.restoreBtn">⬆️ Restore</button>
+            <div class="hint" data-i18n="st.restoreHint">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Xray ── -->
+      <section id="view-xray" class="view hidden">
+        <div class="grid g2">
+          <div class="card">
+            <h3 data-i18n="xr.title">⚙️ Core</h3>
+            <div id="xray2State" class="pill bad"><span class="dot"></span> …</div>
+            <div class="kv"><span data-i18n="xr.version">Version</span><b id="xray2Ver">—</b></div>
+            <div class="kv"><span data-i18n="xr.uptime">Uptime</span><b id="xray2Uptime">—</b></div>
+            <div class="kv"><span data-i18n="xr.goroutines">Goroutines</span><b id="xray2Goro">—</b></div>
+            <div class="kv"><span data-i18n="xr.alloc">Memory</span><b id="xray2Alloc">—</b></div>
+            <div class="f" style="margin-top:12px">
+              <label data-i18n="xr.pinVersion">Pinned version</label>
+              <input id="setXrayVersion" class="ltr" placeholder="v25.1.1" data-i18n-ph="xr.pinPh">
+            </div>
+            <div class="row" style="margin-top:6px">
+              <button class="btn" id="btnSaveXrayVer" data-i18n="xr.saveVer">💾 Save</button>
+            </div>
+            <div class="row" style="margin-top:12px">
+              <button class="btn btn-pri" id="btnXrayRestart" data-i18n="xr.restart">🔄 Restart</button>
+              <button class="btn" id="btnXrayUpdate" data-i18n="xr.update">⬆️ Update</button>
+            </div>
+            <div id="xray2ErrBox" class="errbox hidden">
+              <pre id="xray2ErrText" class="mono"></pre>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 data-i18n="xr.tools">🧰 Tools</h3>
+            <div class="lbl2" data-i18n="xr.keysTool">Reality keys</div>
+            <button class="btn" id="btnXrayKeys" data-i18n="xr.genKeys">🔑 Generate</button>
+            <div id="x25519Box" class="copybox mono hidden">—</div>
+            <div class="lbl2" style="margin-top:18px" data-i18n="xr.certTool">Self-signed cert</div>
+            <div class="f">
+              <input id="certDomain" class="ltr" placeholder="domain">
+            </div>
+            <button class="btn" id="btnGenCert" data-i18n="xr.genCert">📜 Generate</button>
+            <div class="hint" id="certResult"></div>
+          </div>
+        </div>
+
+        <div class="card" id="routesCard" style="margin-top:16px">
+          <h3 data-i18n="xr.routes">🔀 Router paths</h3>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th data-i18n="xr.colPath">Path</th><th data-i18n="xr.colPort">Port</th></tr></thead>
+              <tbody id="xrayRoutes"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h3 data-i18n="xr.modeInfo">Runtime mode</h3>
+          <div class="hint" id="modeInfo">—</div>
+        </div>
+      </section>
+
+      <!-- ── Logs ── -->
+      <section id="view-logs" class="view hidden">
+        <div class="toolbar">
+          <div class="seg">
+            <button class="seg-btn active" id="logTypePanel" data-i18n="lg.panel">Panel</button>
+            <button class="seg-btn" id="logTypeXray" data-i18n="lg.xray">Xray</button>
+          </div>
+          <button class="btn" id="btnRefreshLogs" data-i18n="common.refresh">🔄 Refresh</button>
+        </div>
+        <div class="card">
+          <pre id="logBox" class="logbox mono">—</pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════ Modal ═══════════════════ -->
+<div id="modalBack" class="modal-back hidden">
+  <div class="modal-card" id="modalCard">
+    <div class="modal-head">
+      <h3 id="modalTitle">—</h3>
+      <button class="btn-icon" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ Toasts ═══════════════════ -->
+<div id="toastWrap" class="toasts"></div>
+
+<script src="/assets/i18n.js"></script>
+<script src="/assets/app.js"></script>
+</body>
+</html>
