@@ -1,0 +1,12 @@
+# Scaffold only — not a drop-in replacement for the Python panel
+name = "sf-panel-control"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sf-panel"
+database_id = "REPLACE_ME"
+
+[vars]
+APP_NAME = "SF-Panel"
